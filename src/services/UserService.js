@@ -1,8 +1,16 @@
-const fakeUser = {
-  email: "bob@gmail.com",
-  password: 'bob',
-  user_type: 'SUPER_ADMIN'
-}
+import {UserTypes} from '../constants'
+
+const fakeUsers = [
+  {
+    email: "bob@gmail.com",
+    password: 'bob',
+    user_type: 'SUPER_ADMIN'
+  },
+  {
+    email: "nope@gmail.com",
+    password: 'nope',
+    user_type: 'ADMIN'
+  }]
 
 /**
  * Fake user service
@@ -16,11 +24,21 @@ class UserService {
    * @param password
    */
   checkEmailPassword(email, password) {
-    return email === fakeUser.email && password === fakeUser.password;
+    // FIXME Connection with first fake user only
+    return email === fakeUsers[0].email && password === fakeUsers[0].password;
   };
 
   /**
-   * Api login
+   * Check user type match UserTypes
+   * @param userType
+   * @return {boolean}
+   */
+  checkUserType(userType) {
+    return (userType !== UserTypes.SUPER_ADMIN || userType !== UserTypes.ADMIN || userType !== UserTypes.REGULAR);
+  }
+
+  /**
+   * Api login (with the first fake user)
    * @param email
    * @param password
    * @return {Promise<unknown>}
@@ -28,14 +46,13 @@ class UserService {
   login({email, password}) {
     return new Promise((response,rejected) => {
       setTimeout(() => {
-        // TODO Check tuple email password
         if (! this.checkEmailPassword(email, password)) {
           rejected({
             err: 'Wrong email or password',
           })
         }
         this.isLogged = true
-        response(fakeUser)
+        response(fakeUsers[0])
       },1000)
     })
   }
@@ -54,20 +71,38 @@ class UserService {
   }
 
   /**
-   * Get user infos
+   * Get user infos from the first fake users
    * @return {Promise<unknown>}
    */
   getInfos() {
     return new Promise((response,rejected) => {
       setTimeout(() => {
         if(this.isLogged){
-          response(fakeUser)
+          response(fakeUsers[0])
         } else {
           rejected({
             err: "You're not logged",
           })
         }
       },1000)
+    })
+  }
+
+  /**
+   * SignIn
+   * @param email
+   * @param password
+   * @param userType
+   */
+  signIn({email, password, userType}){
+    return new Promise((response, rejected) => {
+      if (!this.checkUserType(userType)){
+        rejected({
+          err: `Unknown type: ${userType}`
+        })
+      } else {
+        response(fakeUsers[1]);
+      }
     })
   }
 
