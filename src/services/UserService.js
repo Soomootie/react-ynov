@@ -1,3 +1,9 @@
+const fakeUser = {
+  email: "bob@gmail.com",
+  password: 'bob',
+  user_type: 'SUPER_ADMIN'
+}
+
 /**
  * Fake user service
  */
@@ -9,7 +15,9 @@ class UserService {
    * @param email
    * @param password
    */
-  checkEmailPassword(email, password) {};
+  checkEmailPassword(email, password) {
+    return email === fakeUser.email && password === fakeUser.password;
+  };
 
   /**
    * Api login
@@ -21,11 +29,13 @@ class UserService {
     return new Promise((response,rejected) => {
       setTimeout(() => {
         // TODO Check tuple email password
+        if (! this.checkEmailPassword(email, password)) {
+          rejected({
+            err: 'Wrong email or password',
+          })
+        }
         this.isLogged = true
-        // TODO Values
-        response({
-          name: "Rémi"
-        })
+        response(fakeUser)
       },1000)
     })
   }
@@ -51,13 +61,10 @@ class UserService {
     return new Promise((response,rejected) => {
       setTimeout(() => {
         if(this.isLogged){
-          // TODO VALUES
-          response({
-            name: "Rémi"
-          })
+          response(fakeUser)
         } else {
           rejected({
-            err: "You're not logged"
+            err: "You're not logged",
           })
         }
       },1000)
