@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
 import {useHistory} from 'react-router-dom'
+import {UserContext} from "../../contexts";
 import AuthForm from '../../components/auth/AuthForm';
 import {userService} from '../../services';
 
@@ -9,8 +10,8 @@ import {userService} from '../../services';
  * @constructor
  */
 const AuthPage = () => {
+  const userContext = useContext(UserContext);
   const history = useHistory();
-  const [logSuccess, setLogSuccess] = useState({state: true, err: null});
 
   /**
    * Send login trough the api
@@ -19,35 +20,19 @@ const AuthPage = () => {
    */
   const onLogin = ({email, password}) => {
     userService.login({email, password}).then(() => {
-      setLogSuccess(prevLog => {
-        let _log = {...prevLog};
-        _log.state = true;
-        _log.err = null;
-        return _log;
-      });
+      userContext.refreshUserInfos();
       return history.push('/');
+    }).catch(() => {
+      userContext.refreshUserInfos();
     })
-      .catch(err => {
-        setLogSuccess((prevLog) => {
-          let _log = {...prevLog};
-          _log.state = false;
-          _log.err = err.err;
-          return _log
-        });
-    })
+
   }
-
-  useEffect(() => {
-    if (!logSuccess.state) {
-    }
-  }, [logSuccess]);
-
   return (
     <div>
       <AuthForm onSubmit={onLogin}/>
       {/* If log fail display the error message */}
-      {!logSuccess.state &&
-        <p>{logSuccess.err}</p>
+      {(!!userContext.userInfos && !!userContext.userInfos.err) &&
+        <p>{userContext.userInfos.err}{console.log(userContext.userInfos)}</p>
       }
     </div>
   );

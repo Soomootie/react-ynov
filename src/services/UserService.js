@@ -46,13 +46,14 @@ class UserService {
   login({email, password}) {
     return new Promise((response,rejected) => {
       setTimeout(() => {
-        if (! this.checkEmailPassword(email, password)) {
+        if (!this.checkEmailPassword(email, password)) {
           rejected({
             err: 'Wrong email or password',
           })
+        } else {
+          this.isLogged = true;
+          response(fakeUsers[0]);
         }
-        this.isLogged = true
-        response(fakeUsers[0])
       },1000)
     })
   }

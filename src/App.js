@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useEffect} from 'react';
 import {BrowserRouter, Route, Switch} from "react-router-dom";
 import './App.css';
-import UserContext from "./contexts/UserContext";
+import {UserContext} from "./contexts";
 import {userService} from "./services";
 import {AuthRouter, MainRouter} from "./routes";
 import NotFound from "./pages/NotFound";
@@ -16,6 +16,13 @@ function App() {
   const refreshUserInfos = useCallback(() => {
     return userService.getInfos().then((user) => {
       setUserInfos(user);
+    })
+    .catch((err) => {
+      setUserInfos(prevUserInfo => {
+        let _userInfos = {...prevUserInfo};
+        _userInfos.err = err.err;
+        return _userInfos;
+      })
     });
   }, []);
 
